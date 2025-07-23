@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 name = 'mvl_asset_manager'
-version = '0.1.0'
+version = '0.1.1'
 
 description = 'A Command Line Interface (CLI) for an Asset Manager.'
 

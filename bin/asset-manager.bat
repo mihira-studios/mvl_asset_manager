@@ -1,1 +1,0 @@
-python "%REZ_MVL_ASSET_MANAGER_ROOT%\\python\\mvl_asset_manager\\asset_manager.py" %*

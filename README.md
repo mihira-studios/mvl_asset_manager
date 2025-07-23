@@ -1,6 +1,6 @@
-# Asset Manager CLI
+# 🎬 Asset Manager CLI
 
-A lightweight, command-line asset tracker for managing media pipeline assets such as `.exr`, `.mov`, and proxy files, with tagging and relationship support.
+A lightweight, command-line asset tracker for managing media pipeline assets, and proxy files, with tagging and relationship support.
 
 ---
 
@@ -10,149 +10,117 @@ A lightweight, command-line asset tracker for managing media pipeline assets suc
 - Tag assets with metadata (e.g., `source`, `proxy`, `approved`)
 - Query assets by tag
 - Link related assets (e.g., `.exr` → `.mov` → `proxy`)
-- Retrieve full information with related asset references
+- Retrieve full asset info and visualize relationships
+- Safeguard against circular dependency via traversal guards
+- Optional DAG enforcement
 
 ---
-
-##  Installation
-
-Clone the repository and install any dependencies:
-
-```bash
-git clone https://your.repo.url/here.git
-cd asset-manager
-pip install -r requirements.txt
-```
-
-*Ensure your `assets.json` DB path is correctly set in the script:*
-
 ```python
 DB_FILE = "V:\\tools\\asset_manager\\assets.json"
 ```
 
-> Replace with an appropriate path for your platform.
-
 ---
 
-##  Usage
+## Usage
 
-Run the CLI from the terminal:
-
+Run from MvlShell:
 ```bash
-python asset.py <command> [arguments]
+assetdb <command> [arguments]
 ```
 
 ---
 
 ## Commands
 
-### `add`
-
-Add a new asset to the database.
-
+###  `add`
 ```bash
-asset add /path/to/file.exr
+assetdb add /path/to/file.exr
 ```
 
 ---
 
 ### `list`
-
-List all registered assets with their IDs and tags.
-
 ```bash
-asset list
+assetdb list
 ```
 
 ---
 
 ### `info`
-
-View detailed info about an asset, including its related assets.
-
 ```bash
-asset info <asset_id>
+assetdb info <asset_id>
 ```
 
 ---
 
 ### `tag`
-
-Add or remove tags on an asset.
-
 ```bash
-asset tag <asset_id> --add source
-asset tag <asset_id> --remove outdated
+assetdb tag <asset_id> --add source
+assetdb tag <asset_id> --remove outdated
 ```
 
 ---
 
 ### `search`
-
-Find all assets with a specific tag.
-
 ```bash
-asset search approved
+assetdb search approved
 ```
 
 ---
 
 ### `link`
-
-Create a directional relationship between two assets. Useful for linking stages like `.exr` → `.mov` → `proxy`.
+Create a one-way link (with optional DAG enforcement):
 
 ```bash
-asset link <from_asset_id> <to_asset_id>
+assetdb link <from_id> <to_id>
+```
+
+To unlink:
+```bash
+assetdb link <from_id> <to_id> --unlink
 ```
 
 ---
 
-## 🧪 Example Workflow
+### `ingest`
+Register and optionally tag and link in one step:
 
 ```bash
-# Add original .exr
-asset add /project/shot01/image.exr   # id: abc123
-
-# Add converted .mov
-asset add /project/shot01/image.mov   # id: def456
-
-# Add proxy
-asset add /project/shot01/image_proxy.mov   # id: ghi789
-
-# Tag them
-asset tag abc123 --add source
-asset tag def456 --add intermediate
-asset tag ghi789 --add proxy
-
-# Link the versions
-asset link abc123 def456
-asset link def456 ghi789
-
-# Inspect the chain
-asset info abc123
+assetdb ingest /path/to/file.mov --tag proxy --link abc123
 ```
 
 ---
 
-## Roadmap Ideas
+##  Example Workflow
 
-- Tree or graph view for asset lineage
-- Multi-tag queries with `AND/OR`
-- UI frontend or web dashboard
-- Asset versioning support
-- Concurrency-safe file locking
+```bash
+# Add and tag files
+assetdb add /shots/shot01/image.exr      # abc123
+assetdb tag abc123 --add source
 
+assetdb add /shots/shot01/image.mov      # def456
+assetdb tag def456 --add intermediate
+
+assetdb add /shots/shot01/image_proxy.mov  # ghi789
+assetdb tag ghi789 --add proxy
+
+# Link in processing order
+assetdb link abc123 def456
+assetdb link def456 ghi789
+
+# View info with related assets
+assetdb info abc123
+```
 ---
-
 ## Logging
 
-A logger is initialized using `mvl_core_pipeline.logger.Logger`, defaulting to DEBUG level. You can extend logging for deeper traceability or integrate with external log tools.
+Configured via `mvl_core_pipeline.logger.Logger` (set to DEBUG). Extendable for CI/CD integrations or audit logging.
 
 ---
 
-## 📁 Data Storage
+## Data Format
 
-Assets are stored in JSON format at the specified path. Sample entry:
+Sample JSON schema in `assets.json`:
 
 ```json
 {
@@ -164,9 +132,10 @@ Assets are stored in JSON format at the specified path. Sample entry:
 ```
 
 ---
-## 🧑‍💻 Contributors
 
-Maintained by the MVL DEV Team.\
-For support or issues, contact: [systems@mihira.studio.com](mailto\:systems@mihira.studio.com)
+## 👥 Contributors
+
+Maintained by the MVL DEV Team  
+📧 [systems@mihira.studio](mailto:systems@mihira.studio)
+
 ---
-
